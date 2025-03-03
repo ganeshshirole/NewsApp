@@ -1,5 +1,6 @@
 package com.accretionapps.newsapp.presentation.ui.screens.newspapers
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -16,20 +17,29 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.accretionapps.newsapp.domain.model.newspapers.Newspaper
 import com.accretionapps.newsapp.presentation.ui.components.NewspaperItem
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewspapersScreen(viewModel: NewspapersViewModel = hiltViewModel()) {
+fun NewspapersScreen(
+    navController: NavController,
+    viewModel: NewspapersViewModel = hiltViewModel()
+) {
+
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
-        viewModel.handleIntents(NewspapersIntent.LoadNewspapers)
+        // If you wanted to call API every time on LaunchedEffect
+//        viewModel.handleIntent(NewspapersIntent.LoadNewspapers)
     }
+
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("News List") })
+            TopAppBar(title = { Text("Newspapers") })
         }
     ) { padding ->
         Box(
@@ -40,7 +50,13 @@ fun NewspapersScreen(viewModel: NewspapersViewModel = hiltViewModel()) {
         ) {
             when (state) {
                 is NewspapersState.Loading -> CircularProgressIndicator()
-                is NewspapersState.Success -> NewspaperList(newspapers = (state as NewspapersState.Success).newspapers)
+                is NewspapersState.Success -> NewspaperList(
+                    newspapers = (state as NewspapersState.Success).newspapers,
+                    onClick = {
+                        val json = Uri.encode(Json.encodeToString(it))
+                        navController.navigate("news/$json")
+                    })
+
                 is NewspapersState.Error -> Text("Error: ${(state as NewspapersState.Error).message}")
             }
         }
@@ -48,13 +64,13 @@ fun NewspapersScreen(viewModel: NewspapersViewModel = hiltViewModel()) {
 }
 
 @Composable
-fun NewspaperList(newspapers: List<Newspaper>) {
+fun NewspaperList(newspapers: List<Newspaper>, onClick: (Newspaper) -> Unit) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
     ) {
         items(newspapers.size) { index ->
-            NewspaperItem(newspapers[index])
+            NewspaperItem(newspapers[index], onClick = onClick)
         }
     }
 }
