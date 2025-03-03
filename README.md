@@ -33,8 +33,8 @@ An **Android News App** built with **Jetpack Compose**, **Retrofit**, **Hilt**, 
 2. **Sync the project** in Android Studio and run the app on an emulator or a real device.
 
 ## 📷 Screenshots
-![Newspaper List](docs/newspapers.png)
-![Newspaper Details](docs/newsdetails.png)
+<img src="docs/newspapers.png" width="400">
+<img src="docs/newsdetails.png" width="400">
 
 ## 🔧 Architecture
 The project follows **MVI (Model-View-Intent)** architecture for better state management and scalability.
